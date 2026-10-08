@@ -19,10 +19,18 @@ func main() {
 	}
 
 	userNote.Display()
+
+	err = userNote.Save()
+	if err != nil {
+		fmt.Println("Saving the Note Failed!")
+		return
+	}
+
+	fmt.Println("Saving the note Succeeded!")
 }
 
 func getUserInput(prompt string) (string) {
-	fmt.Print(prompt)
+	fmt.Printf("%v ",prompt)
 	
 
 	// Scan can only be used for inputs w/o a space in between 
@@ -32,13 +40,13 @@ func getUserInput(prompt string) (string) {
 	reader := bufio.NewReader(os.Stdin)
 	text, err := reader.ReadString('\n')
 
-	if err != nil {
+	if err != nil { 
 		return ""
 	}
 	// Cleaning text
 
 	text = strings.TrimSuffix(text, "\n")
-	text = strings.TrimSuffix(text, "\r")
+	text = strings.TrimSuffix(text, "\r")  // Line break for Windows
 	
 
 	return text
