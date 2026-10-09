@@ -9,8 +9,31 @@ import (
 	"example.com/interfaces/todo"
 )
 
+type saver interface {
+	Save() error
+}
+
+// type displayer interface {
+// 	Display()
+// }
+
+//you can also embed other interfaces in another interface
+type outputable interface {
+	saver
+	Display()
+}
+
+// type outputable interface {
+// 	Save() error
+// 	Display()
+// }
+
 func main() {
 	//
+	printSomething(1)
+	printSomething(1.5)
+	printSomething("abc")
+
 	title, content := getNoteData()
 
 	todoText := getUserInput("Todo Text: ")
@@ -23,26 +46,50 @@ func main() {
 
 	userNote, err := note.New(title, content)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err) 
 		return
 	}
 
-	todo.Display()
-	err = todo.Save()
+	err = outputData(todo)
+	if err != nil { 
+		return
+	}
+
+
+	err = outputData(userNote)
 	if err != nil {
-		fmt.Println("Saving the Note Failed!")
 		return
 	}
-	fmt.Println("Saving the todo Succeeded!")
+	
+}
 
-
-	userNote.Display()
-	err = userNote.Save()
-	if err != nil {
-		fmt.Println("Saving the Note Failed!")
+// Go any value allowed type
+func printSomething(value any){  //interface{} == any
+	intVal, ok := value.(int)
+	if ok {
+		fmt.Println("Integer: ", intVal)
 		return
 	}
-	fmt.Println("Saving the note Succeeded!")
+
+	floatVal, ok := value.(float64)
+	if ok {
+		fmt.Println("Integer: ", floatVal)
+		return
+	}
+
+	strVal, ok := value.(string)
+	if ok {
+		fmt.Println("Integer: ", strVal)
+		return
+	}
+	// switch value.(type) {
+	// case int:
+	// 	fmt.Println("Integer: ", value)
+	// case float64:
+	// 	fmt.Println("Float: ", value)
+	// case string:
+	// 	fmt.Println("String: ", value)
+	// }
 }
 
 func getUserInput(prompt string) (string) {
@@ -72,4 +119,19 @@ func getNoteData() (string, string) {
 	content := getUserInput("Note Content: ")
 	
 	return title, content
+}
+
+func saveData(data saver) error {
+	err := data.Save()
+	if err != nil {
+		fmt.Println("Saving the Note Failed!")
+		return err
+	}
+	fmt.Println("Saving the note Succeeded!")
+	return nil
+}
+
+func outputData (data outputable) error {
+	data.Display()
+	return saveData(data)
 }

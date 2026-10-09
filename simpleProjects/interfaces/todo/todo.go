@@ -11,8 +11,6 @@ type Todo struct {
 	Text 	string	`json:"text"`
 }
 
-
-
 func New(content string) (Todo, error) {
 	if content == "" {
 		return Todo{}, errors.New("Invalid Input")
@@ -21,6 +19,7 @@ func New(content string) (Todo, error) {
 		Text: content,
 	}, nil
 }
+
 func (todo Todo) Display() {
 	fmt.Println(todo.Text)
 }
