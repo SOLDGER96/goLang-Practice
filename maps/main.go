@@ -3,7 +3,8 @@ package main
 import "fmt"
 
 func main() {
-	names := map[string]string{}
+
+	names := map[string]string {}
 	names["tany"] = "gawade"
 	names["kundu"] = "dhage"
 	names["addy"] = "shinde"
@@ -16,7 +17,7 @@ func main() {
 	fmt.Println(names)
 
 	// Deleting a value in a Map
-	delete(names, "hacker")
+	delete(names, "tany")
 	fmt.Println(names)
 	// named := map[string]int{
 	// 	"tgawade": 0,
