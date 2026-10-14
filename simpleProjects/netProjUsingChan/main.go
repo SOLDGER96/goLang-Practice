@@ -8,25 +8,25 @@ import (
 
 // For Comunication
 type Hub struct {
-	clients map[net.Conn]bool
-	broadcast chan Message
-	register chan net.Conn
+	clients    map[net.Conn]bool
+	broadcast  chan Message
+	register   chan net.Conn
 	unregister chan net.Conn
 }
 
 type Message struct {
-	sender net.Conn
+	sender  net.Conn
 	payload []byte
 }
 
 var PORT string = ":8080"
-
 
 func (h *Hub) Run() {
 	for {
 		select {
 		case clientConn := <-h.register:
 			h.clients[clientConn] = true
+			fmt.Printf("total clients joined %v", len(h.clients))
 		case clientConn := <-h.unregister:
 			delete(h.clients, clientConn)
 		case msg := <-h.broadcast:
@@ -34,8 +34,9 @@ func (h *Hub) Run() {
 				if clientConn != msg.sender {
 					clientConn.Write(msg.payload)
 				}
-			}	
+			}
 		}
+
 	}
 }
 
@@ -43,6 +44,7 @@ func main() {
 	// var conn net.Conn
 	// clients[conn] = true
 	hub := newHub()
+
 	go hub.Run()
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
@@ -60,12 +62,14 @@ func main() {
 			continue
 		}
 		go handleConnection(conn, hub)
+		fmt.Println(len(hub.clients))
+
 	}
 }
 
 func handleConnection(conn net.Conn, h *Hub) {
 	defer conn.Close()
-	
+
 	// Asking for Username
 	conn.Write([]byte("Enter your Username: "))
 
@@ -76,13 +80,13 @@ func handleConnection(conn net.Conn, h *Hub) {
 		return
 	}
 	// http.HandlerFunc("POST /api/abc",handleConnection())
-	
+
 	username := string(nameBuffer[:n])
 	username = strings.TrimSpace(username)
 
+	h.register <- conn
 	fmt.Printf("\n A new User: %v got connected!\n", username)
 	// Logic for adding user to the map
-	h.register <- conn
 
 	for {
 		textBuffer := make([]byte, 1024) // Data across internet travels in raw stream of 1s and 0s so we use here byte
@@ -98,9 +102,9 @@ func handleConnection(conn net.Conn, h *Hub) {
 		message = []byte(strings.TrimSpace(string(message)))
 		messageToString := username + ": " + string(message) + "\n" + ">>"
 		displayMessage := []byte(messageToString)
-		
+
 		msgEnvelope := Message{
-			sender: conn,
+			sender:  conn,
 			payload: displayMessage,
 		}
 		h.broadcast <- msgEnvelope
@@ -109,10 +113,9 @@ func handleConnection(conn net.Conn, h *Hub) {
 
 func newHub() *Hub {
 	return &Hub{
-		clients: make(map[net.Conn]bool),
-		broadcast: make(chan Message),
-		register: make(chan net.Conn),
+		clients:    make(map[net.Conn]bool),
+		broadcast:  make(chan Message),
+		register:   make(chan net.Conn),
 		unregister: make(chan net.Conn),
 	}
 }
-
