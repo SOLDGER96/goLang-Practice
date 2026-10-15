@@ -5,7 +5,7 @@ import "fmt"
 func main() {
 	num := []int{1,2,3,4,5}
 
-	doubleNum := transformNum(&num, doubele)
+	doubleNum := transformNum(&num, double)
 	fmt.Println(doubleNum)
 
 	trippleNum := transformNum(&num, func(num int) int {return num*3})
@@ -20,6 +20,6 @@ func transformNum(num *[]int, transform func(int) int) []int {
 	return dnum
 }
 
-func doubele(num int) int {
+func double(num int) int {
 	return num * 2
 }
